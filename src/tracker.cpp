@@ -143,11 +143,13 @@ namespace tracker {
         // we'll need to distribute the patches among all the threads in order to have a right load for every thread
         distributePatches();
 
+        /* 
         static double endTime = 1468941042.740955591;
-
-        // let's create some timers that will be used for calculating the performance of the algorithm
         ros::Time beginTime;
         beginTime.fromSec(endTime);
+        */
+        
+        // let's create some timers that will be used for calculating the performance of the algorithm
         std::chrono::time_point <std::chrono::system_clock> begin = std::chrono::system_clock::now();
         ros::Time init = current_image_it_->first;
 
@@ -235,12 +237,12 @@ namespace tracker {
                                     start = std::chrono::system_clock::now();
                                 }
 
-                                if(current_image_it_->first > beginTime) {
+                                /*if(current_image_it_->first > beginTime) {
                                     std::chrono::time_point <std::chrono::system_clock> end = std::chrono::system_clock::now();
                                     double duration = std::chrono::duration<double>(end - begin).count();
                                     VLOG(1) << "=====>  Time total: " << duration << std::endl;
                                     raise(SIGKILL);
-                                }
+                                }*/
 
                                 // bootstrap patches that need to be due to new image
                                 if (FLAGS_bootstrap == "klt") {
