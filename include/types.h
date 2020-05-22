@@ -18,6 +18,13 @@ using Patches = std::vector<Patch>; //forward decl
 using EventBuffer = std::deque<dvs_msgs::Event>;
 using ImageBuffer = std::map<ros::Time, cv::Mat>;
 
+enum OperationType {
+    NONE = 0,
+    SORT_BY_LOST_INDICES = 1,
+    INFER_LOST_INDICES = 2,
+    UPDATE_IMAGE = 3
+};
+
 }
 
 namespace viewer

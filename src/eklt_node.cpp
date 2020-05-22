@@ -13,6 +13,7 @@ DEFINE_int32(min_distance, 30, \
            "Minimum distance between detected features. Parameter passed to goodFeatureToTrack.");
 DEFINE_int32(block_size, 30, \
            "Block size to compute Harris score. passed to harrisCorner and goodFeaturesToTrack.");
+DEFINE_int32(thread_number,4, "Number of parallel threads.");
 
 DEFINE_double(k, 0.04, \
               "Magic number for Harris score.");
@@ -68,14 +69,13 @@ int main(int argc, char** argv)
   FLAGS_alsologtostderr = true;
   FLAGS_colorlogtostderr = true;
 
-  ros::init(argc, argv, "eklt");
+  ros::init(argc, argv, "eklt_multithreading_old");
   ros::NodeHandle nh;
 
-  viewer::Viewer viewer(nh);
-  tracker::Tracker tracker(nh, viewer);
+  //viewer::Viewer viewer(nh);
+  tracker::Tracker tracker(nh/*, viewer*/);
 
   ros::spin();
-
 
   return 0;
 }

@@ -1,19 +1,22 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(eklt)
+project(eklt_multithreading)
+
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(catkin_simple REQUIRED)
 find_package(OpenCV REQUIRED)
 catkin_simple(ALL_DEPS_REQUIRED)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fopenmp")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fopenmp") #
 SET(CMAKE_BUILD_TYPE Release)
 
 set(HEADERS
-    include/error.h
-    include/optimizer.h
-    include/patch.h
-    include/tracker.h
-    include/viewer.h
+        include/error.h
+        include/optimizer.h
+        include/patch.h
+        include/tracker.h
+        include/viewer.h
+        include/thread_pool.h
 )
 
 set(SOURCES

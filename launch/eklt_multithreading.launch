@@ -2,10 +2,11 @@
   <arg name="bag" default=""/>
   <arg name="v" default="0"/>
   <arg name="tracks_file_txt" default=""/>
+  <arg name="thread_number" default=""/>
 
   <!-- tracker -->
-  <node name="tracker" pkg="eklt" type="eklt_node" output="screen" args="
-  --flagfile=$(find eklt)/config/eklt.conf
+  <node name="tracker" pkg="eklt_multithreading" type="eklt_node" output="screen" args="
+  --flagfile=$(find eklt_multithreading)/config/eklt.conf
   --v=$(arg v)
   --tracks_file_txt=$(arg tracks_file_txt)">
 
@@ -19,8 +20,9 @@
    <node pkg="rosbag" type="play" name="player" output="screen" args="$(arg bag)"/>
  </group>
 
- <!-- image view-->
+ <!-- image view
   <node name="rqt_image_view" pkg="rqt_image_view" type="rqt_image_view">
   <remap from="image" to="feature_tracks"/>
   </node>
+ -->
 </launch>
