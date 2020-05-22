@@ -4,7 +4,6 @@
 #include <gflags/gflags.h>
 #include <sensor_msgs/Image.h>
 #include <dvs_msgs/EventArray.h>
-#include <eklt/EKLTFeature.h>
 #include <image_transport/image_transport.h>
 
 #include <deque>
