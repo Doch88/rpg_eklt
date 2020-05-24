@@ -54,17 +54,7 @@ struct Patch
         lost_ = lost;
     }
 
-    Patch() = delete;
-
-    Patch(const Patch& pt) :
-    init_center_(pt.init_center_), flow_angle_(pt.flow_angle_), t_init_(pt.t_init_), t_curr_(pt.t_curr_), event_counter_(pt.event_counter_),
-    color_(pt.color_), lost_(pt.lost_), initialized_(pt.initialized_), tracking_quality_(pt.tracking_quality_),
-    event_buffer_(pt.event_buffer_), warping_(pt.warping_), center_(pt.center_), id_(pt.id_), gradients(pt.gradients){
-
-        half_size_ = (FLAGS_patch_size - 1) / 2;
-        batch_size_ = FLAGS_batch_size;
-        update_rate_ = FLAGS_update_every_n_events;
-    }
+    Patch() = default;
 
     /**
    * @brief contains checks if event is contained in square around the current feature position
