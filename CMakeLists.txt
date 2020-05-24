@@ -16,7 +16,6 @@ set(HEADERS
         include/patch.h
         include/tracker.h
         include/viewer.h
-        include/thread_pool.h
 )
 
 set(SOURCES
