@@ -1,82 +1,22 @@
-# EKLT: Asynchronous, Photometric Feature Tracking using Events and Frames
-[<img src="images/thumbnail.png" width="400">](https://youtu.be/ZyD1YPW1h4U)
+# Feature tracking algorithm based on event-camera using an approach multithreading
 
-This repository implements the work in the 2019 IJCV paper [**EKLT: Asynchronous, Photometric Feature Tracking using Events and Frames**](http://rpg.ifi.uzh.ch/docs/IJCV19_Gehrig.pdf) by [Daniel Gehrig](https://danielgehrig18.github.io/), [Henri Rebecq](http://henri.rebecq.fr), [Guillermo Gallego](http://www.guillermogallego.es), and [Davide Scaramuzza](http://rpg.ifi.uzh.ch/people_scaramuzza.html).
-Also check out our feature tracking evaluation package [here](https://github.com/uzh-rpg/rpg_feature_tracking_analysis).
+This repository implements an improvment of the algorithm described in the 2019 IJCV paper [**EKLT: Asynchronous, Photometric Feature Tracking using Events and Frames**](http://rpg.ifi.uzh.ch/docs/IJCV19_Gehrig.pdf) by [Daniel Gehrig](https://danielgehrig18.github.io/), [Henri Rebecq](http://henri.rebecq.fr), [Guillermo Gallego](http://www.guillermogallego.es), and [Davide Scaramuzza](http://rpg.ifi.uzh.ch/people_scaramuzza.html) using a multithreading approach.
 
-### Citation
-A pdf of the paper is [available here](http://rpg.ifi.uzh.ch/docs/IJCV19_Gehrig.pdf). If you use any of this code, please cite this publication as follows:
 
-```bibtex
-@Article{Gehrig19ijcv,
-  author        = {Daniel Gehrig and Henri Rebecq and Guillermo Gallego and
-                  Davide Scaramuzza},
-  title         = {{EKLT}: Asynchronous, Photometric Feature Tracking using Events and Frames},
-  journal       = "Int. J. Comput. Vis.",
-  year          = 2019,
-}
-```
 ## Overview
 
-EKLT works by leveraging the complementarity between events and frames for feature tracking. Using the events, it manages to track in the blind-time between two frames. First features are extracted on the frames and then tracked using only the events. The tracker then produces asynchronous feature tracks with high temporal resolution. More 
-details can be found in the [paper](http://rpg.ifi.uzh.ch/docs/IJCV19_Gehrig.pdf) and [video](https://youtu.be/ZyD1YPW1h4U).
+This algoithm is based on EKLT, that works by leveraging the complementarity between events and frames for feature tracking. Using the events, it manages to track in the blind-time between two frames. First features are extracted on the frames and then tracked using only the events. The tracker then produces asynchronous feature tracks with high temporal resolution. More 
+details can be found in the [paper](http://rpg.ifi.uzh.ch/docs/IJCV19_Gehrig.pdf) and in the [repository](https://github.com/uzh-rpg/rpg_eklt). Our job has been to make the algorithm more efficient, making it multithreaded, and making it more suitable for a possible real application of visual odometry.
 
-## Installation
+## Installation and running
 
-This code was tested on [ROS melodic](http://wiki.ros.org/melodic/Installation) and [ROS kinetic](http://wiki.ros.org/kinetic/Installation).
-Install [catkin tools](http://catkin-tools.readthedocs.org/en/latest/installing.html) and [vcstool](https://github.com/dirk-thomas/vcstool) if needed:
+For the installation refer to what is described in the eklt [repository](https://github.com/uzh-rpg/rpg_eklt), but with some differences. Inside folder `config`, there is the file `eklt.conf`, wich now contains a parameter that allows to specify the number of threads. In addition, the command for build the project now is `catkin build eklt_multithreading` instead of `catkin build eklt`. Finally, the command for the launch is `roslaunch eklt eklt_multithreading.launch` instead of `roslaunch eklt eklt.launch`
 
-    sudo apt install python-catkin-tools python-vcstool
-
-Create a new catkin workspace if needed:
-
-    mkdir -p catkin_ws/src
-    cd catkin_ws
-    catkin config --init --mkdirs --extend /opt/ros/melodic  --cmake-args -DCMAKE_BUILD_TYPE=Release
-    
-Then clone the repo and all its dependencies using vcs-import
-    
-    cd src
-    git clone git@github.com:uzh-rpg/rpg_eklt.git
-    vcs-import < rpg_eklt/dependencies.yaml
-
-Finally, build the project and then source the workspace
-    
-    catkin build eklt
-    source ~/catkin_ws/devel/setup.bash
-    
-## Running Example
-
-Download [boxes_6dof](http://rpg.ifi.uzh.ch/datasets/davis/boxes_6dof.bag) from the [Event Camera Dataset](http://rpg.ifi.uzh.ch/davis_data.html) which was recorded using the [DVS ROS driver](https://github.com/uzh-rpg/rpg_dvs_ros) into a new directory
-
-    cd /tmp/
-    wget http://rpg.ifi.uzh.ch/datasets/eklt_example.zip
-    unzip eklt_example.zip
-    rm eklt_example.zip
-    
-Run EKLT with the following command:
-    
-    roslaunch eklt eklt.launch tracks_file_txt:=/tmp/eklt_example/tracks.txt v:=1
-
-In a separate terminal play the rosbag:
-  
-    rosbag play /tmp/eklt_example/boxes_6dof.bag
-
-**Configuration parameters**: 
-Configuration parameters for eklt can be viewed by running the following command in a sourced terminal:
-
-    rosrun eklt eklt_node --help
-
-The individual parameters can be changed in `config/eklt.conf`. In particular, the parameter `min_corners` has been set to 0 which makes it such that no new features are initialized after the first image. This configuration was used in the paper. However, for continuous tracking you can set this value higher (50 is a good number).
-Additional optional parameters can be set through the launch file `eklt.launch`:
-
-* `v:=1` verbosity level of `VLOG` from the `glog` library
-* `bag:=/path/to.bag`: path to the bag which will be used to perform evalution
-* `tracks_file_txt:=/path/to/file.txt`: path to output file where feature tracks will be stored.
 
 ## Evaluation
 
-The tracks file generated by the prevous command contains all of the information necessary to reconstruct feature tracks. The feature tracks are stored in the following format:
+The tests were performed on different thread numbers, and all of them were performed with Ubuntu 16.04 and ROS Kinetic.
+The tracks file generated by the execution of the algorithm contains all of the information necessary to reconstruct feature tracks. The feature tracks are stored in the following format:
 
 |feature id| timestamp          | x     | y     |
 |:--------:|:------------------:|:-----:|:-----:|
@@ -86,6 +26,7 @@ The tracks file generated by the prevous command contains all of the information
 |0         |1468940293.964686394|223.596|19.1384|
 |1         |1468940293.960546732|182.122|52.1019|
 |2         |1468940293.960608244|172.227|47.1469|
+
 
 These feature tracks can be used directly for evaluation with [this feature tracking analysis package](https://github.com/uzh-rpg/rpg_feature_tracking_analysis). First clone the repo into your workspace 
     
