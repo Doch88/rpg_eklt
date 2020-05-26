@@ -73,7 +73,7 @@ int main(int argc, char** argv)
   FLAGS_alsologtostderr = true;
   FLAGS_colorlogtostderr = true;
 
-  ros::init(argc, argv, "eklt_multithreading_old");
+  ros::init(argc, argv, "eklt_multithreading");
   ros::NodeHandle nh;
 
   //viewer::Viewer viewer(nh);
