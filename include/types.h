@@ -15,7 +15,8 @@ namespace tracker
 struct Patch; //forward decl
 using Patches = std::vector<Patch>; //forward decl
 
-using EventBuffer = std::deque<dvs_msgs::Event>;
+//using EventBuffer = std::deque<dvs_msgs::Event>;
+using EventBuffer = std::vector<dvs_msgs::Event>;
 using ImageBuffer = std::map<ros::Time, cv::Mat>;
 
 enum OperationType {

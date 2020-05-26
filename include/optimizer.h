@@ -28,7 +28,7 @@ struct Optimizer
      * @ brief precomputes log gradients of the image
      */
     void getLogGradients(const cv::Mat& img, cv::Mat& I_x, cv::Mat& I_y);
-    bool precomputeLogImageArray(const tracker::Patches& patches, const tracker::ImageBuffer::iterator& image_it);
+    void precomputeLogImageArray(const tracker::Patches& patches, const tracker::ImageBuffer::iterator& image_it);
     
     /**
      * @brief perform optimization of cost function (7) in the original paper.

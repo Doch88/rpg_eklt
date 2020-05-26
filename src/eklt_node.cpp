@@ -37,6 +37,10 @@ DEFINE_int32(patch_size, 25, \
            "Determines size of patch around corner. All events that fall in this patch are placed into the features buffer.");
 DEFINE_int32(max_num_iterations, 10, \
            "Maximum number of itrations allowed by the ceres solver to update optical flow direction and warp.");
+DEFINE_int32(vector_capacity, 130000000, \
+           "Initial event's vector capacity.");
+DEFINE_int32(add_vector_capacity, 1000000, \
+           "Capacity to add if the vector is too small.");
 
 DEFINE_double(displacement_px, 0.6, \
               "Controls scaling parameter for batch size calculation: from formula optimal batchsize == 1/Cth * sum |nabla I * v/|v||. displacement_px corresponds to factor 1/Cth");
@@ -69,7 +73,7 @@ int main(int argc, char** argv)
   FLAGS_alsologtostderr = true;
   FLAGS_colorlogtostderr = true;
 
-  ros::init(argc, argv, "eklt_multithreading");
+  ros::init(argc, argv, "eklt_multithreading_old");
   ros::NodeHandle nh;
 
   //viewer::Viewer viewer(nh);

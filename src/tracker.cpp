@@ -15,6 +15,7 @@ DECLARE_int32(min_corners);
 DECLARE_int32(update_every_n_events);
 DECLARE_int32(block_size);
 DECLARE_int32(thread_number);
+DECLARE_int32(vector_capacity);
 
 DECLARE_bool(display_features);
 
@@ -39,14 +40,17 @@ namespace tracker {
 
         number_of_threads = FLAGS_thread_number;
 
+        events_.reserve(FLAGS_vector_capacity);
+
         // initialize all the structures that will be used for the threads
         for (int i = 0; i < number_of_threads; i++) {
-            events_.emplace_back();
+            //events_.emplace_back();
             events_mutex_.push_back(std::make_unique<std::mutex>());
             distribute_mutex.push_back(std::make_unique<std::mutex>());
             lost_indices_.push_back(std::vector<int>());
             entered_thread.emplace_back(false);
             thread_running.emplace_back(true);
+            threadIterators.push_back(events_.begin());
         }
     }
 
@@ -143,14 +147,14 @@ namespace tracker {
         // we'll need to distribute the patches among all the threads in order to have a right load for every thread
         distributePatches();
 
-        /* 
-        static double endTime = 1468941042.740955591;
+        cleanEvents();
+
+        // let's create some timers that will be used for calculating the performance of the algorithm
+        /*static double endTime = 1468941042.740955591;
         ros::Time beginTime;
         beginTime.fromSec(endTime);
-        */
-        
-        // let's create some timers that will be used for calculating the performance of the algorithm
-        std::chrono::time_point <std::chrono::system_clock> begin = std::chrono::system_clock::now();
+        std::chrono::time_point <std::chrono::system_clock> begin = std::chrono::system_clock::now();*/
+
         ros::Time init = current_image_it_->first;
 
         for (int i = 0; i < number_of_threads; i++) {
@@ -272,6 +276,8 @@ namespace tracker {
                                                 OperationType::SORT_BY_LOST_INDICES);
                                     distributePatches(OperationType::INFER_LOST_INDICES);
                                 }
+
+                                cleanEvents();
 
                                 // erase old image
                                 auto image_it = current_image_it_;

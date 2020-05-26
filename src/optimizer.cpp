@@ -62,7 +62,7 @@ void Optimizer::getLogGradients(const cv::Mat& img, cv::Mat& I_x, cv::Mat& I_y)
     cv::Sobel( log_image / 8, I_y, CV_64F, 0, 1, 3);
 }
 
-bool Optimizer::precomputeLogImageArray(const tracker::Patches& patches, const tracker::ImageBuffer::iterator& image_it)
+void Optimizer::precomputeLogImageArray(const tracker::Patches& patches, const tracker::ImageBuffer::iterator& image_it)
 {
     cv::Mat I_x, I_y;
     getLogGradients(image_it->second, I_x, I_y);

@@ -25,6 +25,8 @@
 #include "viewer.h"
 
 DECLARE_double(tracking_quality);
+DECLARE_int32(vector_capacity);
+DECLARE_int32(add_vector_capacity);
 
 
 namespace tracker {
@@ -68,9 +70,11 @@ namespace tracker {
             while (true) {
                 {
                     std::unique_lock <std::mutex> lock(*events_mutex_[thread]);
-                    if (events_[thread].size() > 0) {
-                        ev = events_[thread].front();
-                        events_[thread].pop_front();
+
+                    if (threadIterators[thread] != events_.end()) {
+                        auto tmpEv = *threadIterators[thread];
+                        ev = tmpEv;
+                        ++threadIterators[thread];
                         return;
                     }
                 }
@@ -189,20 +193,20 @@ namespace tracker {
          * This uses insertion sort as the events already come almost always sorted
          */
         inline void insertEventInSortedBuffer(const dvs_msgs::Event &e) {
-            for (size_t i = 0; i < events_.size(); i++) {
-                std::unique_lock <std::mutex> lock(*events_mutex_[i]);
-                events_[i].push_back(e);
 
-                // insertion sort to keep the buffer sorted
-                // in practice, the events come almost always sorted,
-                // so the number of iterations of this loop is almost always 0
-                int j = (events_[i].size() - 1) - 1; // second to last element
-                while (j >= 0 && events_[i][j].ts > e.ts) {
-                    events_[i][j + 1] = events_[i][j];
-                    j--;
-                }
-                events_[i][j + 1] = e;
+            checkEventsCapacity();
+
+            events_.push_back(e);
+
+            // insertion sort to keep the buffer sorted
+            // in practice, the events come almost always sorted,
+            // so the number of iterations of this loop is almost always 0
+            int j = (events_.size() - 1) - 1; // second to last element
+            while (j >= 0 && events_[j].ts > e.ts) {
+                events_[j + 1] = events_[j];
+                j--;
             }
+            events_[j + 1] = e;
         }
 
        /**
@@ -260,24 +264,11 @@ namespace tracker {
        void mergeThread(std::vector <std::vector<int>> &lost_indices,
                         std::vector<int> &global_lost_indices, OperationType op = OperationType::NONE) {
            patches_.clear();
-           int k = 0;
-           int max_size = 0;
 
            for (int i = 0; i < number_of_threads; i++) {
                for (int j = 0; j < patch_per_thread[i].size(); j++)
                    patches_.push_back(patch_per_thread[i][j]);
-               if (events_[i].size() > max_size) {
-                   k = i;
-
-                   max_size = events_[i].size();
-               }
            }
-
-          for (int i = 0; i < number_of_threads; i++) {
-              if(i != k && events_[i].size() < events_[k].size()) {
-                  events_[i] = events_[k];
-              }
-          }
 
            // sort the vectors in order to have the lost features at the end.
            // doing this, we'll distribute the lost patches among all threads
@@ -310,6 +301,64 @@ namespace tracker {
            }
        }
 
+       void cleanEvents() {
+           std::vector <std::unique_lock<std::mutex>> mutexVector;
+           for (int i = 0; i < events_mutex_.size(); i++)
+               mutexVector.push_back(std::unique_lock<std::mutex>(*events_mutex_[i]));
+
+           EventBuffer::iterator minIt = threadIterators[0];
+           /*bool changed = false;
+           for(auto && it: threadIterators) {
+               if(std::distance(minIt, it) < 0) {
+                   VLOG(1) << std::distance(minIt, it);
+                   minIt = it;
+                   changed = true;
+               }
+           }
+           if(changed)*/
+           events_.erase(events_.begin(), minIt);
+
+           for(int i = 0; i < threadIterators.size(); i++) {
+               threadIterators[i] = events_.begin();
+           }
+
+           mutexVector.clear();
+       }
+
+       void checkEventsCapacity() {
+           if(events_.size()+1 < events_.capacity())
+               return;
+
+           std::vector <std::unique_lock<std::mutex>> mutexVector;
+           for (int i = 0; i < events_mutex_.size(); i++)
+               mutexVector.push_back(std::unique_lock<std::mutex>(*events_mutex_[i]));
+
+
+           VLOG(1) << "Updating events capacity...";
+
+           std::vector<int> distances;
+           for(auto && it : threadIterators) {
+               distances.push_back(std::distance(events_.begin(), it));
+           }
+
+           unsigned int addValue = 0;
+           if(events_.capacity() + FLAGS_add_vector_capacity >= events_.max_size()) {
+               addValue = events_.max_size() - events_.capacity() - 2;
+               VLOG(1) << "Reached events max size!";
+           } else
+               addValue = FLAGS_add_vector_capacity;
+
+           events_.reserve(events_.capacity() + addValue);
+
+           VLOG(1) << "Reserved " << events_.capacity();
+
+           for(int i = 0; i < threadIterators.size(); i++) {
+               threadIterators[i] = events_.begin() + distances[i];
+           }
+
+           mutexVector.clear();
+       }
+
        int number_of_threads;
 
        cv::Size sensor_size_;
@@ -321,7 +370,9 @@ namespace tracker {
        ImageBuffer::iterator current_image_it_;
 
        // buffers for images and events
-       std::vector <EventBuffer> events_;
+       EventBuffer events_;
+
+       std::vector<EventBuffer::iterator> threadIterators;
 
        ImageBuffer images_;
 
@@ -334,7 +385,7 @@ namespace tracker {
 
        // patch parameters
        Patches patches_;
-       std::map<int, std::pair<cv::Mat, cv::Mat>> patch_gradients_;
+       //std::map<int, std::pair<cv::Mat, cv::Mat>> patch_gradients_;
        std::vector <std::vector<int>> lost_indices_;
        std::vector <std::vector<Patch>> patch_per_thread;
        std::vector <ros::Time> most_current_time_;
