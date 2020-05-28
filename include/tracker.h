@@ -43,8 +43,8 @@ namespace tracker {
         ~Tracker() {
             thread_running[0] = false;
             for (size_t i = 1; i < number_of_threads; i++) {
-                threads[i].join();
                 thread_running[i] = false;
+                threads[i].join();
             }
         }
 
