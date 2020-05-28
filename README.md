@@ -11,7 +11,7 @@ For more details look at the [report](report.pdf) of our work. It is written in 
 
 ## Installation and running
 
-For the installation refer to what is described in the eklt [repository](https://github.com/uzh-rpg/rpg_eklt). However, there are some differences. Inside folder `config`, there is a file named `eklt.conf`, which now contains a parameter that allows you to specify the number of threads. In addition, in order to build the project now you have to use the command `catkin build eklt_multithreading` instead of `catkin build eklt`. And finally, to launch it you should run `roslaunch eklt eklt_multithreading.launch` instead of `roslaunch eklt eklt.launch`
+For the installation refer to what is described in the eklt [repository](https://github.com/uzh-rpg/rpg_eklt). However, there are some differences. Inside folder `config`, there is a file named `eklt.conf`, which now contains a parameter that allows you to specify the number of threads, and two parameters that enable you to handle the memory used by the events vector. In addition, in order to build the project now you have to use the command `catkin build eklt_multithreading` instead of `catkin build eklt`. And finally, to launch it you should run `roslaunch eklt eklt_multithreading.launch` instead of `roslaunch eklt eklt.launch`
 
 
 ## Evaluation
