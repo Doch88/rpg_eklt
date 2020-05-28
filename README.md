@@ -1,4 +1,4 @@
-# Feature tracking algorithm based on event-camera using a multithreading approach
+# Event-camera feature tracking algorithm using a multithreading approach
 
 This repository implements an extension of the algorithm described in the 2019 IJCV paper [**EKLT: Asynchronous, Photometric Feature Tracking using Events and Frames**](http://rpg.ifi.uzh.ch/docs/IJCV19_Gehrig.pdf) by [Daniel Gehrig](https://danielgehrig18.github.io/), [Henri Rebecq](http://henri.rebecq.fr), [Guillermo Gallego](http://www.guillermogallego.es), and [Davide Scaramuzza](http://rpg.ifi.uzh.ch/people_scaramuzza.html) using a multithreading approach.
 
